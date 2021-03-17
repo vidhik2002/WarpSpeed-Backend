@@ -3,8 +3,9 @@ const router = express.Router();
 
 router.post('/', (req, res) => {
     const token = req.body.token;
-    const username = req.body.username
-    const user = { name: username }
+    const username = req.body.username;
+    const email = req.body.email;
+    const user = { name: username , email: email}
     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
     res.json({ accessToken })
 });
