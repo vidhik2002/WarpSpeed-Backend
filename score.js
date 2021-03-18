@@ -26,7 +26,14 @@ router.post('/', async(req, res) => {
     let sum = 0;
     for (var i = 0; i < wordArr.length; i++) {
         sum += (wordArr[i].length * 2)
+
     }
+    let field = {
+        
+    "email": "vidhik@gmail.com",
+    "score": sum
+}
+    
     const document = db.collection('leaderboard').where('email','==',req.body.email)
     if (document)
     {
@@ -38,10 +45,16 @@ router.post('/', async(req, res) => {
         //     score: sum
         // });
         // }
+        await db.collection('leaderboard').doc(req.body.email).set(field,{merge:true})
+        .then(()=> res.json({email:req.body.email}))
+        .catch((error)=> res.status(500).send(error))
         document.get().then(function(querySnapshot) {
         querySnapshot.forEach(async function(doc) {
         const details = doc.data()
+        console.log(sum)
+        console.log(details.score)
         if (sum > details.score){
+            
             await document.update({
             score: sum
         });
@@ -51,17 +64,21 @@ router.post('/', async(req, res) => {
     }
     else
     {
-        const id = uid(20)
-        db.collection("leaderboard").doc(id).set({
-        email: req.body.email,
-        score: sum
-        })
-        .then(() => {
-            console.log("Document successfully written!");
-        })
-        .catch((error) => {
-            console.error("Error writing document: ", error);
-        });
+        // const id = uid(20)
+        // db.collection("leaderboard").doc(id).set({
+        // email: req.body.email,
+        // score: sum
+        // })
+        // .then(() => {
+        //     console.log("Document successfully written!");
+        // })
+        // .catch((error) => {
+        //     console.error("Error writing document: ", error);
+        // });
+        
+        
+
+
     }
     res.status(200).json({
         message: "Successfully updated",
