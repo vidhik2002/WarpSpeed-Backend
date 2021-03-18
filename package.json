@@ -17,6 +17,7 @@
     "firebase-admin": "^9.5.0",
     "firebase-functions": "^3.13.2",
     "firebase-tools": "^9.6.1",
+    "heroku": "^7.51.0",
     "jsonwebtoken": "^8.5.1",
     "rand-token": "^1.0.1"
   },
