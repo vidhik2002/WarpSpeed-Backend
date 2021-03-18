@@ -21,7 +21,7 @@ function authenticateToken(req, res, next) {
     });
 }
 
-router.post('/', async(req, res) => {
+router.post('/',[authenticateToken], async(req, res) => {
     const wordArr = req.body.wordArr;
     let sum = 0;
     for (var i = 0; i < wordArr.length; i++) {
@@ -30,11 +30,11 @@ router.post('/', async(req, res) => {
     }
     let field = {
         
-    "email": "vidhik@gmail.com",
+    "email": req.user.email,
     "score": sum
 }
     
-    const document = db.collection('leaderboard').where('email','==',req.body.email)
+    const document = db.collection('leaderboard').where('email','==',req.user.email)
     if (document)
     {
         // let item = await document.get()
@@ -45,7 +45,7 @@ router.post('/', async(req, res) => {
         //     score: sum
         // });
         // }
-        await db.collection('leaderboard').doc(req.body.email).set(field,{merge:true})
+        await db.collection('leaderboard').doc(req.user.email).set(field,{merge:true})
         .then(()=> res.json({email:req.body.email}))
         .catch((error)=> res.status(500).send(error))
         document.get().then(function(querySnapshot) {
