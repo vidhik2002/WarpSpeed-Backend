@@ -46,7 +46,7 @@ router.post('/',[authenticateToken], async(req, res) => {
         // });
         // }
         await db.collection('leaderboard').doc(req.user.email).set(field,{merge:true})
-        .then(()=> res.json({email:req.body.email}))
+        .then(()=> res.json({email:req.user.email}))
         .catch((error)=> res.status(500).send(error))
         document.get().then(function(querySnapshot) {
         querySnapshot.forEach(async function(doc) {
