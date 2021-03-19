@@ -23,47 +23,57 @@ function authenticateToken(req, res, next) {
   });
 }
 
-router.post("/", [authenticateToken], async (req, res) => {
-  const wordArr = req.body.wordArr;
-  console.log("from router");
-  console.log(req.user);
+const { uid } = require("rand-token");
 
+router.post("/", [authenticateToken], async (req, res) => {
+  
+  const wordArr = req.body.wordArr;
   let sum = 0;
   for (var i = 0; i < wordArr.length; i++) {
     if (words.wordlist.indexOf(wordArr[i]) !== -1) {
       sum += wordArr[i].length * 2;
     }
-    }
+  }
 
-  console.log("sum:",sum);
   let field = {
-    email: req.user.email,
-    score: sum,
-    username: req.user.username,
+    "email": req.user.email,
+    "score": sum,
+    "username": req.user.username,
   };
 
   const document = db
-    .collection("leaderboard")
-    .where("email", "==", req.user.email);
-  if (document) {
-    await db
-      .collection("leaderboard")
-      .doc(req.user.email)
-      .set(field, { merge: true })
-      .then(() => res.json({ email: req.user.email }))
-      .catch((error) => res.status(500).send(error));
-    document.get().then(function (querySnapshot) {
-      querySnapshot.forEach(async function (doc) {
-        const details = doc.data();
-        console.log(details.score);
-        if (sum > details.score) {
-          await document.update({
-            score: sum,
-          });
-        }
+    .collection("leaderboard").doc(req.user.email);
+  console.log("Document:\n",document)
+  
+ const querySnapshot = await document.get();
+ console.log(querySnapshot.exists) 
+ if (querySnapshot.exists) {
+    let details = querySnapshot.data();
+    if (sum > details.score) {
+      await db.collection("leaderboard").doc(req.user.email).update({
+        score: sum,
       });
+    }
+    res.status(200).json({
+      sum: sum,
     });
- }
+  } else {
+    db.collection("leaderboard")
+      .doc(req.user.email)
+      .set({
+        email: req.user.email,
+        username: req.user.username,
+        score: sum,
+      })
+      .then(() => {
+        console.log("Document successfully written!");
+        res.status(200).send("success");
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+        res.status(400).send("failed to create new doc");
+      });
+  }
 });
 router.get("/", async (req, res) => {
   try {
