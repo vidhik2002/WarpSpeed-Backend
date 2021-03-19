@@ -39,6 +39,7 @@ router.post("/", [authenticateToken], async (req, res) => {
   let field = {
     email: req.user.email,
     score: sum,
+    username: req.user.username,
   };
 
   const document = db
